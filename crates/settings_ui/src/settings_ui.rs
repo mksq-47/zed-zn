@@ -511,12 +511,12 @@ fn init_renderers(cx: &mut App) {
                     settings_window,
                     item,
                     settings_file,
-                    Button::new("open-in-settings-file", "Edit in settings.json")
+                    Button::new("open-in-settings-file", "在 settings.json 中编辑")
                         .style(ButtonStyle::Outlined)
                         .size(ButtonSize::Medium)
                         .tab_index(0_isize)
                         .tooltip(Tooltip::for_action_title_in(
-                            "Edit in settings.json",
+                            "在 settings.json 中编辑",
                             &OpenCurrentFile,
                             &settings_window.focus_handle,
                         ))
@@ -866,7 +866,7 @@ fn open_settings_editor_with(
         cx.open_window(
             WindowOptions {
                 titlebar: Some(TitlebarOptions {
-                    title: Some("Zed — Settings".into()),
+                    title: Some("Zed — 设置".into()),
                     appears_transparent: true,
                     traffic_light_position: Some(point(px(12.0), px(12.0))),
                 }),
@@ -1413,8 +1413,8 @@ fn render_settings_item_layout(
                                 IconButton::new("reset-to-default-btn", IconName::Undo)
                                     .icon_color(Color::Muted)
                                     .icon_size(IconSize::Small)
-                                    .aria_label("Reset to Default")
-                                    .tooltip(Tooltip::text("Reset to Default"))
+                                    .aria_label("恢复默认值")
+                                    .tooltip(Tooltip::text("恢复默认值"))
                                     .on_click(move |_, window, cx| {
                                         reset_to_default(window, cx);
                                     }),
@@ -1422,7 +1422,7 @@ fn render_settings_item_layout(
                         })
                         .when_some(modified_in, |this, modified_in| {
                             this.child(
-                                Label::new(format!("\u{2014}  Modified in {modified_in}"))
+                                Label::new(format!("\u{2014}  已在 {modified_in} 中修改"))
                                     .color(Color::Muted)
                                     .size(LabelSize::Small),
                             )
@@ -1705,9 +1705,9 @@ enum SettingsUiFile {
 impl SettingsUiFile {
     fn setting_type(&self) -> &'static str {
         match self {
-            SettingsUiFile::User => "User",
-            SettingsUiFile::Project(_) => "Project",
-            SettingsUiFile::Server(_) => "Server",
+            SettingsUiFile::User => "用户",
+            SettingsUiFile::Project(_) => "项目",
+            SettingsUiFile::Server(_) => "服务器",
         }
     }
 
@@ -1769,7 +1769,7 @@ impl SettingsWindow {
         let current_file = SettingsUiFile::User;
         let search_bar = cx.new(|cx| {
             let mut editor = Editor::single_line(window, cx);
-            editor.set_placeholder_text("Search settings…", window, cx);
+            editor.set_placeholder_text("搜索设置…", window, cx);
             editor
         });
         cx.subscribe(&search_bar, |this, _, event: &EditorEvent, cx| {
@@ -2916,11 +2916,11 @@ impl SettingsWindow {
                     }),
             )
             .child(
-                Button::new(edit_in_json_id, "Edit in settings.json")
+                Button::new(edit_in_json_id, "在 settings.json 中编辑")
                     .tab_index(0_isize)
                     .style(ButtonStyle::OutlinedGhost)
                     .tooltip(Tooltip::for_action_title_in(
-                        "Edit in settings.json",
+                        "在 settings.json 中编辑",
                         &OpenCurrentFile,
                         &self.focus_handle,
                     ))
@@ -3518,9 +3518,9 @@ impl SettingsWindow {
             .items_center()
             .justify_center()
             .gap_1()
-            .child(Label::new("No Results"))
+            .child(Label::new("无结果"))
             .child(
-                Label::new(format!("No settings match \"{}\"", search_query))
+                Label::new(format!("没有与“{}”匹配的设置", search_query))
                     .size(LabelSize::Small)
                     .color(Color::Muted),
             )
@@ -3754,11 +3754,11 @@ impl SettingsWindow {
                         .flex_shrink_0()
                         .when(current_sub_page.link.in_json, |this| {
                             this.child(
-                                Button::new("open-in-settings-file", "Edit in settings.json")
+                                Button::new("open-in-settings-file", "在 settings.json 中编辑")
                                     .tab_index(0_isize)
                                     .style(ButtonStyle::OutlinedGhost)
                                     .tooltip(Tooltip::for_action_title_in(
-                                        "Edit in settings.json",
+                                        "在 settings.json 中编辑",
                                         &OpenCurrentFile,
                                         &self.focus_handle,
                                     ))
@@ -3772,7 +3772,7 @@ impl SettingsWindow {
                         })
                         .when(is_skills_page, |this| {
                             this.child(
-                                Button::new("open-skill-creator", "Create Skill")
+                                Button::new("open-skill-creator", "创建技能")
                                     .tab_index(0_isize)
                                     .style(ButtonStyle::OutlinedGhost)
                                     .on_click(cx.listener(|this, _, window, cx| {
@@ -3830,7 +3830,7 @@ impl SettingsWindow {
                     )
                     .action_slot(
                         div().pr_1().pb_1().child(
-                            Button::new("fix-in-json", "Fix in settings.json")
+                            Button::new("fix-in-json", "在 settings.json 中修复")
                                 .tab_index(0_isize)
                                 .style(ButtonStyle::Tinted(ui::TintColor::Warning))
                                 .on_click(cx.listener(|this, _, window, cx| {
@@ -3897,10 +3897,10 @@ impl SettingsWindow {
                         v_flex()
                             .my_0p5()
                             .gap_0p5()
-                            .child(Label::new("Restricted Mode"))
+                            .child(Label::new("受限模式"))
                             .child(
                                 Label::new(
-                                    "This project is in restricted mode. Some project settings may not apply.",
+                                    "此项目处于受限模式，部分项目设置可能不会生效。",
                                 )
                                 .size(LabelSize::Small)
                                 .color(Color::Muted),
@@ -3908,7 +3908,7 @@ impl SettingsWindow {
                     )
                     .action_slot(
                         div().pr_2().pb_1().child(
-                            Button::new("manage-trust", "Manage Trust")
+                            Button::new("manage-trust", "管理信任设置")
                                 .style(ButtonStyle::Tinted(ui::TintColor::Warning))
                                 .on_click(cx.listener(move |_this, _, window, cx| {
                                     if let Some(original_window) = original_window {
@@ -4277,7 +4277,7 @@ impl SettingsWindow {
         self.skill_creator_page = Some((page.clone(), subscription));
 
         let sub_page_link = SubPageLink {
-            title: "Create Skill".into(),
+            title: "创建技能".into(),
             r#type: SubPageType::SkillCreator,
             description: None,
             search_aliases: &[],
