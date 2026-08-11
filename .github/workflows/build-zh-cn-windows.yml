@@ -17,6 +17,7 @@ jobs:
     timeout-minutes: 120
     env:
       CARGO_INCREMENTAL: "0"
+      CARGO_HOME: 'C:\c'
       RELEASE_VERSION: zh-cn-${{ github.run_number }}
       ZED_RELEASE_CHANNEL: dev
       ZED_WORKSPACE: ${{ github.workspace }}
@@ -28,6 +29,7 @@ jobs:
       - name: Install Rust toolchain
         shell: pwsh
         run: |
+          git config --global core.longpaths true
           $toolchain = ([regex]::Match((Get-Content rust-toolchain.toml -Raw), 'channel = "([^"]+)"')).Groups[1].Value
           if ([string]::IsNullOrWhiteSpace($toolchain)) {
             throw 'Could not determine the Rust toolchain from rust-toolchain.toml.'
