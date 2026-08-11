@@ -1,0 +1,69 @@
+name: Build Zed Chinese Windows Installer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-zh-cn-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build x86_64 installer
+    runs-on: windows-2022
+    timeout-minutes: 120
+    env:
+      CARGO_INCREMENTAL: "0"
+      RELEASE_VERSION: zh-cn-${{ github.run_number }}
+      ZED_RELEASE_CHANNEL: dev
+      ZED_WORKSPACE: ${{ github.workspace }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+
+      - name: Install Rust toolchain
+        shell: pwsh
+        run: |
+          $toolchain = ([regex]::Match((Get-Content rust-toolchain.toml -Raw), 'channel = "([^"]+)"')).Groups[1].Value
+          if ([string]::IsNullOrWhiteSpace($toolchain)) {
+            throw 'Could not determine the Rust toolchain from rust-toolchain.toml.'
+          }
+
+          rustup toolchain install $toolchain --profile minimal
+          rustup target add x86_64-pc-windows-msvc --toolchain $toolchain
+          rustup run $toolchain cargo --version
+
+      - name: Verify build tools
+        shell: pwsh
+        run: |
+          rustup show active-toolchain
+          if (-not (Test-Path 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe')) {
+            throw 'Inno Setup 6 is required to create the Windows installer.'
+          }
+
+          $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
+          $installationPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if ([string]::IsNullOrWhiteSpace($installationPath)) {
+            throw 'A Visual Studio C++ build tools installation is required.'
+          }
+
+          $communityPath = 'C:\Program Files\Microsoft Visual Studio\2022\Community'
+          if (-not (Test-Path $communityPath)) {
+            New-Item -ItemType Junction -Path $communityPath -Target $installationPath | Out-Null
+          }
+
+      - name: Build unsigned Windows installer
+        shell: pwsh
+        run: script/bundle-windows.ps1 -Architecture x86_64
+
+      - name: Upload installer
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: Zed-zh-cn-windows-x86_64
+          path: target/Zed-x86_64.exe
+          if-no-files-found: error
+          retention-days: 14
