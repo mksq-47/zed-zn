@@ -14,7 +14,7 @@ jobs:
   build:
     name: Build x86_64 installer
     runs-on: windows-2022
-    timeout-minutes: 120
+    timeout-minutes: 360
     env:
       CARGO_INCREMENTAL: "0"
       CARGO_HOME: 'C:\c'
@@ -38,6 +38,11 @@ jobs:
           rustup toolchain install $toolchain --profile minimal
           rustup target add x86_64-pc-windows-msvc --toolchain $toolchain
           rustup run $toolchain cargo --version
+
+      - name: Restore Rust build cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: . -> target
 
       - name: Verify build tools
         shell: pwsh
